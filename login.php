@@ -1,36 +1,60 @@
 <?php 
-  session_start();
-  if(isset($_SESSION['unique_id'])){
-    header("location: users.php");
-  }
+SESSION_START();
+include('../header.php');
+$loginError = '';
+if (!empty($_POST['username']) && !empty($_POST['pwd'])) {
+	include ('Chat.php');
+	$chat = new Chat();
+	$user = $chat->loginUsers($_POST['username'], $_POST['pwd']);	
+	if(!empty($user)) {
+		$_SESSION['username'] = $user[0]['username'];
+		$_SESSION['userid'] = $user[0]['userid'];
+		$chat->updateUserOnline($user[0]['userid'], 1);
+		$lastInsertId = $chat->insertUserLoginDetails($user[0]['userid']);
+		$_SESSION['login_details_id'] = $lastInsertId;
+		header("Location:index.php");
+	} else {
+		$loginError = "Invalid username or password!";
+	}
+}
+
 ?>
+<title>phpzag.com : Demo Push Notification System with PHP & MySQL</title>
+<?php include('../container.php');?>
+<div class="container">		
+	<h2>Example: Build Live Chat System with Ajax, PHP & MySQL</h1>		
+	<div class="row">
+		<div class="col-sm-4">
+			<h4>Chat Login:</h4>		
+			<form method="post">
+				<div class="form-group">
+				<?php if ($loginError ) { ?>
+					<div class="alert alert-warning"><?php echo $loginError; ?></div>
+				<?php } ?>
+				</div>
+				<div class="form-group">
+					<label for="username">User:</label>
+					<input type="username" class="form-control" name="username" required>
+				</div>
+				<div class="form-group">
+					<label for="pwd">Password:</label>
+					<input type="password" class="form-control" name="pwd" required>
+				</div>  
+				<button type="submit" name="login" class="btn btn-info">Login</button>
+			</form>
+			<br>
+			<p><b>User</b> : adam<br><b>Password</b> : 123</p>
+			<p><b>User</b> : rose<br><b>Password</b> : 123</p>
+			<p><b>User</b> : smith<br><b>Password</b>: 123</p>
+			<p><b>User</b> : merry<br><b>Password</b>: 123</p>
+		</div>
+		
+	</div>
+</div>	
+<?php include('../footer.php');?>
 
-<?php include_once "header.php"; ?>
-<body>
-  <div class="wrapper">
-    <section class="form login">
-      <header>Realtime Chat App</header>
-      <form action="#" method="POST" enctype="multipart/form-data" autocomplete="off">
-        <div class="error-text"></div>
-        <div class="field input">
-          <label>Email Address</label>
-          <input type="text" name="email" placeholder="Enter your email" required>
-        </div>
-        <div class="field input">
-          <label>Password</label>
-          <input type="password" name="password" placeholder="Enter your password" required>
-          <i class="fas fa-eye"></i>
-        </div>
-        <div class="field button">
-          <input type="submit" name="submit" value="Continue to Chat">
-        </div>
-      </form>
-      <div class="link">Not yet signed up? <a href="index.php">Signup now</a></div>
-    </section>
-  </div>
-  
-  <script src="javascript/pass-show-hide.js"></script>
-  <script src="javascript/login.js"></script>
 
-</body>
-</html>
+
+
+
+
